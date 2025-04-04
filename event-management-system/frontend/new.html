@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Event Management System</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 20px auto;
+            background-color: #fff;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+        h2 {
+            text-align: center;
+            color: #f97316;
+            margin-bottom: 25px;
+        }
+        input[type="text"], input[type="password"], input[type="date"], input[type="time"], select, textarea {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        button {
+            padding: 12px 20px;
+            background-color: #f97316;
+            border: none;
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 10px;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #e26a00;
+        }
+        button.secondary {
+            background-color: #6c757d;
+        }
+        button.secondary:hover {
+            background-color: #5a6268;
+        }
+        .tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 25px;
+            border-bottom: 1px solid #ddd;
+        }
+        .tab {
+            padding: 12px 25px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            font-weight: 500;
+        }
+        .tab.active {
+            border-bottom: 3px solid #f97316;
+            color: #f97316;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 15px;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            max-width: 350px;
+        }
+        .toast.error {
+            background: #ffdddd;
+            color: #d8000c;
+            border-left: 6px solid #d8000c;
+        }
+        .toast.success {
+            background: #ddffdd;
+            color: #28a745;
+            border-left: 6px solid #28a745;
+        }
+        .logout-button {
+            padding: 10px 15px;
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 10px 0;
+            float: right;
+        }
+        .event-tile {
+            border: 1px solid #ddd;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+            background-color: #fff;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .event-tile:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        }
+        .event-details {
+            padding: 25px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+        .hidden {
+            display: none;
+        }
+        .admin-option {
+            margin: 25px 0;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+        }
+        .admin-option h3 {
+            color: #f97316;
+            margin-top: 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f97316;
+            color: white;
+        }
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        .rating {
+            display: flex;
+            margin: 10px 0;
+        }
+        .rating input {
+            display: none;
+        }
+        .rating label {
+            font-size: 24px;
+            color: #ddd;
+            cursor: pointer;
+            margin-right: 5px;
+        }
+        .rating input:checked ~ label {
+            color: #ffc107;
+        }
+        .rating label:hover,
+        .rating label:hover ~ label {
+            color: #ffc107;
+        }
+        .section-title {
+            color: #f97316;
+            border-bottom: 2px solid #f97316;
+            padding-bottom: 8px;
+            margin-top: 30px;
+        }
+        .create-event-form {
+            background-color: #f8f9fa;
+            padding: 25px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        .organizer-list {
+            margin-top: 10px;
+        }
+        .organizer-tag {
+            display: inline-block;
+            background-color: #e9ecef;
+            padding: 5px 10px;
+            border-radius: 20px;
+            margin-right: 8px;
+            margin-bottom: 8px;
+        }
+        .organizer-tag button {
+            background: none;
+            border: none;
+            color: #dc3545;
+            padding: 0 5px;
+            margin-left: 5px;
+            cursor: pointer;
+        }
+        .review-card {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        .review-rating {
+            color: #ffc107;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+     <!-- Login Container - Modified with new fields -->
+     <div id="loginContainer" class="container">
+        <h2>MAHE Event Management System</h2>
+        <div class="tabs">
+            <div class="tab active" data-tab="studentTab" onclick="showTab('studentTab')">Student Login</div>
+            <div class="tab" data-tab="adminTab" onclick="showTab('adminTab')">Admin Login</div>
+            <div class="tab" data-tab="organizerTab" onclick="showTab('organizerTab')">Organizer Login</div>
+        </div>
+        <div id="studentTab" class="tab-content active">
+            <input type="text" id="studentRegId" placeholder="Registration ID (9 digits)">
+            <input type="password" id="studentPassword" placeholder="Password">
+            <button onclick="studentLogin()">Student Login</button>
+        </div>
+        <div id="adminTab" class="tab-content">
+            <input type="text" id="adminEmail" placeholder="Admin Email">
+            <input type="password" id="adminPassword" placeholder="Admin Password">
+            <button onclick="adminLogin()">Admin Login</button>
+        </div>
+        <div id="organizerTab" class="tab-content">
+            <input type="text" id="organizerRegId" placeholder="Organizer Registration ID (9 digits)">
+            <input type="password" id="organizerPassword" placeholder="Password">
+            <button onclick="organizerLogin()">Organizer Login</button>
+        </div>
+    </div>
+
+    <!-- Student Dashboard -->
+    <div id="studentDashboard" class="container hidden">
+        <button class="logout-button" onclick="logout()">Logout</button>
+        <h2>Student Dashboard</h2>
+        
+        <h3 class="section-title">Upcoming Events</h3>
+        <div id="upcomingEventTiles"></div>
+        
+        <h3 class="section-title">My Registrations</h3>
+        <div id="myRegistrations"></div>
+        
+        <h3 class="section-title">Past Events</h3>
+        <div id="pastEventTiles"></div>
+    </div>
+
+    <!-- Event Details -->
+    <div id="eventDetails" class="container hidden">
+        <button class="logout-button" onclick="logout()">Logout</button>
+        <button class="secondary" onclick="backToDashboard()">Back to Dashboard</button>
+        
+        <div class="event-details">
+            <h2 id="eventName"></h2>
+            <p><strong>Venue:</strong> <span id="eventVenue"></span></p>
+            <p><strong>Date:</strong> <span id="eventDate"></span></p>
+            <p><strong>Time:</strong> <span id="eventTime"></span></p>
+            <p><strong>Registration Deadline:</strong> <span id="eventDeadline"></span></p>
+            <p><strong>Chief Organizer:</strong> <span id="eventOrganizer"></span></p>
+            <p><strong>Description:</strong> <span id="eventDescription"></span></p>
+            
+            <div id="registrationSection">
+                <button onclick="finalRegistration()">Register for Event</button>
+            </div>
+            
+            <div id="ratingSection" class="hidden">
+                <h3>Rate this Event</h3>
+                <div class="rating">
+                    <input type="radio" id="star5" name="rating" value="5"><label for="star5">★</label>
+                    <input type="radio" id="star4" name="rating" value="4"><label for="star4">★</label>
+                    <input type="radio" id="star3" name="rating" value="3"><label for="star3">★</label>
+                    <input type="radio" id="star2" name="rating" value="2"><label for="star2">★</label>
+                    <input type="radio" id="star1" name="rating" value="1"><label for="star1">★</label>
+                </div>
+                <textarea id="reviewText" placeholder="Share your experience (optional)" rows="3"></textarea>
+                <button onclick="submitRating()">Submit Rating</button>
+            </div>
+            
+            <div id="eventReviews">
+                <h3>Event Reviews</h3>
+                <div id="reviewsList"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div id="adminDashboard" class="container hidden">
+        <button class="logout-button" onclick="logout()">Logout</button>
+        <h2>Admin Dashboard</h2>
+        
+        <div class="admin-option">
+            <h3>Venue Management</h3>
+            <table id="venuesTable">
+                <thead>
+                    <tr>
+                        <th>Venue Name</th>
+                        <th>Capacity</th>
+                        <th>Availability</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="venuesList">
+                    <!-- Venues will be populated here -->
+                </tbody>
+            </table>
+            <button onclick="showAddVenueModal()">Add New Venue</button>
+        </div>
+        
+        <div class="admin-option">
+            <h3>Chief Organizers</h3>
+            <table id="organizersTable">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Department</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="organizersList">
+                    <!-- Organizers will be populated here -->
+                </tbody>
+            </table>
+            <button onclick="showAddOrganizerModal()">Add New Organizer</button>
+        </div>
+        
+        <div class="admin-option">
+            <h3>Student Management</h3>
+            <textarea id="studentData" placeholder="Enter student data (Format: Name, Registration ID, Email, Department) - one student per line"></textarea>
+            <button onclick="addStudents()">Add Students</button>
+        </div>
+    </div>
+
+    <!-- Organizer Dashboard -->
+    <div id="organizerDashboard" class="container hidden">
+        <button class="logout-button" onclick="logout()">Logout</button>
+        <h2>Organizer Dashboard</h2>
+        
+        <button onclick="showCreateEventForm()">Create New Event</button>
+        
+        <h3 class="section-title">My Organized Events</h3>
+        <div id="organizedEvents"></div>
+        
+        <div id="createEventForm" class="create-event-form hidden">
+            <h3>Create New Event</h3>
+            <div class="form-group">
+                <label for="newEventName">Event Name</label>
+                <input type="text" id="newEventName" placeholder="Enter event name">
+            </div>
+            <div class="form-group">
+                <label for="newEventDescription">Description</label>
+                <textarea id="newEventDescription" placeholder="Enter event description" rows="3"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="newEventVenue">Venue</label>
+                <select id="newEventVenue">
+                    <!-- Venues will be populated here -->
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="newEventDate">Date</label>
+                <input type="date" id="newEventDate">
+            </div>
+            <div class="form-group">
+                <label for="newEventTime">Time Slot</label>
+                <select id="newEventTime">
+                    <option value="09:00-11:00">9:00 AM - 11:00 AM</option>
+                    <option value="11:00-13:00">11:00 AM - 1:00 PM</option>
+                    <option value="14:00-16:00">2:00 PM - 4:00 PM</option>
+                    <option value="16:00-18:00">4:00 PM - 6:00 PM</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="newEventDeadline">Registration Deadline</label>
+                <input type="date" id="newEventDeadline">
+            </div>
+            <div class="form-group">
+                <label>Additional Organizers</label>
+                <input type="text" id="newOrganizerEmail" placeholder="Enter organizer email">
+                <button class="secondary" onclick="addOrganizer()">Add Organizer</button>
+                <div class="organizer-list" id="organizerList">
+                    <!-- Organizers will be added here -->
+                </div>
+            </div>
+            <button onclick="createEvent()">Create Event</button>
+            <button class="secondary" onclick="cancelCreateEvent()">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Add Venue Modal -->
+    <div id="addVenueModal" class="modal hidden">
+        <div class="modal-content">
+            <h3>Add New Venue</h3>
+            <input type="text" id="newVenueName" placeholder="Venue Name">
+            <input type="number" id="newVenueCapacity" placeholder="Capacity">
+            <button onclick="addVenue()">Add Venue</button>
+            <button class="secondary" onclick="closeAddVenueModal()">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Add Organizer Modal -->
+    <div id="addOrganizerModal" class="modal hidden">
+        <div class="modal-content">
+            <h3>Add New Organizer</h3>
+            <input type="text" id="newOrganizerName" placeholder="Name">
+            <input type="email" id="newOrganizerEmail" placeholder="Email">
+            <input type="text" id="newOrganizerDept" placeholder="Department">
+            <button onclick="addOrganizerAdmin()">Add Organizer</button>
+            <button class="secondary" onclick="closeAddOrganizerModal()">Cancel</button>
+        </div>
+    </div>
+
+    <script>
+        // Updated sample data with passwords
+        const students = [
+            { id: "123456789", password: "Stu1@2023", name: "Student One", email: "student1@manipal.edu", department: "CS" },
+            { id: "987654321", password: "Stu1@2023", name: "Student Two", email: "student2@manipal.edu", department: "ME" }
+        ];
+        
+        const organizers = [
+            { id: "111111111", password: "Org1@2023", name: "John Doe", email: "john@manipal.edu", department: "Computer Science" },
+            { id: "222222222", password: "Org1@2023", name: "Jane Smith", email: "jane@manipal.edu", department: "Electronics" }
+        ];
+
+        // [All other variables remain the same]
+
+        // Modified Login Functions
+        function studentLogin() {
+        
+            const regId = document.getElementById('studentRegId').value;
+            const password = document.getElementById('studentPassword').value;
+            
+            if (regId.length !== 9) {
+                showToast('Registration ID must be 9 digits.', 'error');
+                return;
+            }
+            
+            if (!password) {
+                showToast('Please enter your password.', 'error');
+                return;
+            }
+            
+            const student = students.find(s => s.id === regId);
+            if (!student) {
+                showToast('Student not found.', 'error');
+                return;
+            }
+            
+            if (student.password !== password) {
+                showToast('Invalid password.', 'error');
+                return;
+            }
+            
+            isLoggedIn = true;
+            currentStudent = student;
+            showStudentDashboard();
+            showToast('Login successful!', 'success');
+        }
+        
+        function organizerLogin() {
+            const regId = document.getElementById('organizerRegId').value;
+            const password = document.getElementById('organizerPassword').value;
+            
+            if (regId.length !== 9) {
+                showToast('Registration ID must be 9 digits.', 'error');
+                return;
+            }
+            
+            if (!password) {
+                showToast('Please enter your password.', 'error');
+                return;
+            }
+            
+            const organizer = organizers.find(o => o.id === regId);
+            if (!organizer) {
+                showToast('Organizer not found.', 'error');
+                return;
+            }
+            
+            if (organizer.password !== password) {
+                showToast('Invalid password.', 'error');
+                return;
+            }
+            
+            isLoggedIn = true;
+            isOrganizer = true;
+            currentOrganizer = organizer;
+            showOrganizerDashboard();
+            showToast('Organizer login successful!', 'success');
+        }
+
+        
+        function logout() {
+            isLoggedIn = false;
+            isAdmin = false;
+            isOrganizer = false;
+            currentStudent = null;
+            currentOrganizer = null;
+            
+            loginContainer.classList.remove('hidden');
+            studentDashboard.classList.add('hidden');
+            adminDashboard.classList.add('hidden');
+            organizerDashboard.classList.add('hidden');
+            eventDetails.classList.add('hidden');
+            
+            showTab('studentTab');
+            showToast('Logged out successfully.', 'success');
+        }
+        
+        // Dashboard Functions
+        function showStudentDashboard() {
+            loginContainer.classList.add('hidden');
+            adminDashboard.classList.add('hidden');
+            organizerDashboard.classList.add('hidden');
+            eventDetails.classList.add('hidden');
+            studentDashboard.classList.remove('hidden');
+            
+            renderUpcomingEvents();
+            renderMyRegistrations();
+            renderPastEvents();
+        }
+        
+        function showAdminDashboard() {
+            loginContainer.classList.add('hidden');
+            studentDashboard.classList.add('hidden');
+            organizerDashboard.classList.add('hidden');
+            eventDetails.classList.add('hidden');
+            adminDashboard.classList.remove('hidden');
+            
+            renderVenuesTable();
+            renderOrganizersTable();
+        }
+        
+        function showOrganizerDashboard() {
+            loginContainer.classList.add('hidden');
+            studentDashboard.classList.add('hidden');
+            adminDashboard.classList.add('hidden');
+            eventDetails.classList.add('hidden');
+            organizerDashboard.classList.remove('hidden');
+            
+            renderOrganizedEvents();
+        }
+        
+        function backToDashboard() {
+            if (isAdmin) {
+                showAdminDashboard();
+            } else if (isOrganizer) {
+                showOrganizerDashboard();
+            } else {
+                showStudentDashboard();
+            }
+        }
+        
+        // Event Display Functions
+        function renderUpcomingEvents() {
+            const container = document.getElementById('upcomingEventTiles');
+            container.innerHTML = '';
+            
+            const upcomingEvents = events.filter(e => !e.pastEvent);
+            
+            if (upcomingEvents.length === 0) {
+                container.innerHTML = '<p>No upcoming events found.</p>';
+                return;
+            }
+            
+            upcomingEvents.forEach(event => {
+                const tile = document.createElement('div');
+                tile.className = 'event-tile';
+                tile.innerHTML = `
+                    <h3>${event.name}</h3>
+                    <p><strong>Venue:</strong> ${event.venue}</p>
+                    <p><strong>Date:</strong> ${formatDate(event.date)}</p>
+                    <p><strong>Time:</strong> ${event.time}</p>
+                    <p><strong>Registration Deadline:</strong> ${formatDate(event.deadline)}</p>
+                    <p><strong>Organizer:</strong> ${event.organizer}</p>
+                `;
+                tile.onclick = () => showEventDetails(event);
+                container.appendChild(tile);
+            });
+        }
+        
+        function renderPastEvents() {
+            const container = document.getElementById('pastEventTiles');
+            container.innerHTML = '';
+            
+            const pastEvents = events.filter(e => e.pastEvent);
+            
+            if (pastEvents.length === 0) {
+                container.innerHTML = '<p>No past events found.</p>';
+                return;
+            }
+            
+            pastEvents.forEach(event => {
+                const tile = document.createElement('div');
+                tile.className = 'event-tile';
+                
+                // Calculate average rating
+                const avgRating = event.reviews.length > 0 
+                    ? (event.reviews.reduce((sum, review) => sum + review.rating, 0) / event.reviews.length)
+                    : 0;
+                
+                tile.innerHTML = `
+                    <h3>${event.name}</h3>
+                    <p><strong>Date:</strong> ${formatDate(event.date)}</p>
+                    <p><strong>Organizer:</strong> ${event.organizer}</p>
+                    <div class="review-rating">${renderStars(avgRating)} (${event.reviews.length} reviews)</div>
+                `;
+                tile.onclick = () => showEventDetails(event);
+                container.appendChild(tile);
+            });
+        }
+        
+        function renderMyRegistrations() {
+            const container = document.getElementById('myRegistrations');
+            container.innerHTML = '';
+            
+            if (!currentStudent) return;
+            
+            const myEvents = events.filter(e => 
+                e.registrations.includes(currentStudent.id) && !e.pastEvent
+            );
+            
+            if (myEvents.length === 0) {
+                container.innerHTML = '<p>You are not registered for any upcoming events.</p>';
+                return;
+            }
+            
+            myEvents.forEach(event => {
+                const tile = document.createElement('div');
+                tile.className = 'event-tile';
+                tile.innerHTML = `
+                    <h3>${event.name}</h3>
+                    <p><strong>Venue:</strong> ${event.venue}</p>
+                    <p><strong>Date:</strong> ${formatDate(event.date)}</p>
+                    <p><strong>Time:</strong> ${event.time}</p>
+                    <p><strong>Organizer:</strong> ${event.organizer}</p>
+                `;
+                tile.onclick = () => showEventDetails(event);
+                container.appendChild(tile);
+            });
+        }
+        
+        function renderOrganizedEvents() {
+            const container = document.getElementById('organizedEvents');
+            container.innerHTML = '';
+            
+            if (!currentOrganizer) return;
+            
+            const myEvents = events.filter(e => 
+                e.organizers.includes(currentOrganizer.email)
+            );
+            
+            if (myEvents.length === 0) {
+                container.innerHTML = '<p>You are not organizing any events.</p>';
+                return;
+            }
+            
+            myEvents.forEach(event => {
+                const tile = document.createElement('div');
+                tile.className = 'event-tile';
+                
+                const isPast = event.pastEvent;
+                const status = isPast ? 'Completed' : 'Upcoming';
+                const statusClass = isPast ? 'past' : 'upcoming';
+                
+                tile.innerHTML = `
+                    <h3>${event.name}</h3>
+                    <p><strong>Status:</strong> <span class="${statusClass}">${status}</span></p>
+                    <p><strong>Venue:</strong> ${event.venue}</p>
+                    <p><strong>Date:</strong> ${formatDate(event.date)}</p>
+                    <p><strong>Time:</strong> ${event.time}</p>
+                    <p><strong>Registrations:</strong> ${event.registrations.length}</p>
+                    <button onclick="viewEventDetails(${event.id})">View Details</button>
+                `;
+                container.appendChild(tile);
+            });
+        }
+        
+        // Event Details Functions
+        function showEventDetails(event) {
+            studentDashboard.classList.add('hidden');
+            adminDashboard.classList.add('hidden');
+            organizerDashboard.classList.add('hidden');
+            eventDetails.classList.remove('hidden');
+            
+            document.getElementById('eventName').textContent = event.name;
+            document.getElementById('eventVenue').textContent = event.venue;
+            document.getElementById('eventDate').textContent = formatDate(event.date);
+            document.getElementById('eventTime').textContent = event.time;
+            document.getElementById('eventDeadline').textContent = formatDate(event.deadline);
+            document.getElementById('eventOrganizer').textContent = event.organizer;
+            document.getElementById('eventDescription').textContent = event.description;
+            
+            // Show/hide registration and rating sections
+            const registrationSection = document.getElementById('registrationSection');
+            const ratingSection = document.getElementById('ratingSection');
+            
+            if (currentStudent && event.registrations.includes(currentStudent.id)) {
+                registrationSection.classList.add('hidden');
+                
+                // Check if event is past and student hasn't rated it yet
+                if (event.pastEvent) {
+                    const hasRated = event.reviews.some(r => r.studentId === currentStudent.id);
+                    if (!hasRated) {
+                        ratingSection.classList.remove('hidden');
+                    } else {
+                        ratingSection.classList.add('hidden');
+                    }
+                } else {
+                    ratingSection.classList.add('hidden');
+                }
+            } else {
+                registrationSection.classList.remove('hidden');
+                ratingSection.classList.add('hidden');
+            }
+            
+            // Render reviews
+            renderEventReviews(event);
+        }
+        
+        function renderEventReviews(event) {
+            const container = document.getElementById('reviewsList');
+            container.innerHTML = '';
+            
+            if (event.reviews.length === 0) {
+                container.innerHTML = '<p>No reviews yet.</p>';
+                return;
+            }
+            
+            event.reviews.forEach(review => {
+                const student = students.find(s => s.id === review.studentId);
+                const studentName = student ? student.name : 'Anonymous';
+                
+                const reviewCard = document.createElement('div');
+                reviewCard.className = 'review-card';
+                reviewCard.innerHTML = `
+                    <div class="review-rating">${renderStars(review.rating)}</div>
+                    <p><strong>${studentName}</strong></p>
+                    <p>${review.review || 'No comment provided.'}</p>
+                `;
+                container.appendChild(reviewCard);
+            });
+        }
+        
+        function finalRegistration() {
+            if (!currentStudent) return;
+            
+            const eventName = document.getElementById('eventName').textContent;
+            const event = events.find(e => e.name === eventName);
+            
+            if (event) {
+                event.registrations.push(currentStudent.id);
+                showToast(`Successfully registered for ${eventName}!`, 'success');
+                showStudentDashboard();
+            }
+        }
+        
+        function submitRating() {
+            if (!currentStudent) return;
+            
+            const rating = document.querySelector('input[name="rating"]:checked');
+            const reviewText = document.getElementById('reviewText').value;
+            const eventName = document.getElementById('eventName').textContent;
+            
+            if (!rating) {
+                showToast('Please select a rating.', 'error');
+                return;
+            }
+            
+            const event = events.find(e => e.name === eventName);
+            if (event) {
+                event.reviews.push({
+                    studentId: currentStudent.id,
+                    rating: parseInt(rating.value),
+                    review: reviewText
+                });
+                
+                showToast('Thank you for your feedback!', 'success');
+                showStudentDashboard();
+            }
+        }
+        
+        // Admin Functions
+        function renderVenuesTable() {
+            const container = document.getElementById('venuesList');
+            container.innerHTML = '';
+            
+            venues.forEach(venue => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${venue.name}</td>
+                    <td>${venue.capacity}</td>
+                    <td>${venue.available ? 'Available' : 'Unavailable'}</td>
+                    <td>
+                        <button onclick="toggleVenueAvailability(${venue.id})">Toggle</button>
+                        <button class="secondary" onclick="editVenue(${venue.id})">Edit</button>
+                    </td>
+                `;
+                container.appendChild(row);
+            });
+        }
+        
+        function renderOrganizersTable() {
+            const container = document.getElementById('organizersList');
+            container.innerHTML = '';
+            
+            organizers.forEach(organizer => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${organizer.name}</td>
+                    <td>${organizer.email}</td>
+                    <td>${organizer.department}</td>
+                    <td>
+                        <button onclick="editOrganizer(${organizer.id})">Edit</button>
+                    </td>
+                `;
+                container.appendChild(row);
+            });
+        }
+        
+        function toggleVenueAvailability(venueId) {
+            const venue = venues.find(v => v.id === venueId);
+            if (venue) {
+                venue.available = !venue.available;
+                renderVenuesTable();
+                showToast(`Venue ${venue.name} is now ${venue.available ? 'available' : 'unavailable'}`, 'success');
+            }
+        }
+        
+        function addStudents() {
+            const studentData = document.getElementById('studentData').value;
+            if (!studentData.trim()) {
+                showToast('Please enter student data.', 'error');
+                return;
+            }
+            
+            const lines = studentData.split('\n');
+            let added = 0;
+            
+            lines.forEach(line => {
+                const [name, id, email, department] = line.split(',').map(item => item.trim());
+                if (name && id && email && department) {
+                    if (!students.some(s => s.id === id)) {
+                        students.push({ id, name, email, department });
+                        added++;
+                    }
+                }
+            });
+            
+            showToast(`Added ${added} new students.`, 'success');
+            document.getElementById('studentData').value = '';
+        }
+        
+        // Organizer Functions
+        function showCreateEventForm() {
+            document.getElementById('createEventForm').classList.remove('hidden');
+            
+            // Populate venue dropdown
+            const venueSelect = document.getElementById('newEventVenue');
+            venueSelect.innerHTML = '';
+            venues.filter(v => v.available).forEach(venue => {
+                const option = document.createElement('option');
+                option.value = venue.name;
+                option.textContent = venue.name;
+                venueSelect.appendChild(option);
+            });
+            
+            // Clear previous organizers (except current organizer)
+            document.getElementById('organizerList').innerHTML = '';
+            if (currentOrganizer) {
+                const organizerTag = document.createElement('div');
+                organizerTag.className = 'organizer-tag';
+                organizerTag.textContent = currentOrganizer.email;
+                document.getElementById('organizerList').appendChild(organizerTag);
+            }
+        }
+        
+        function cancelCreateEvent() {
+            document.getElementById('createEventForm').classList.add('hidden');
+        }
+        
+        function addOrganizer() {
+            const emailInput = document.getElementById('newOrganizerEmail');
+            const email = emailInput.value.trim();
+            
+            if (!email) {
+                showToast('Please enter an email address.', 'error');
+                return;
+            }
+            
+            // Check if already added
+            const existing = document.querySelectorAll('.organizer-tag');
+            for (let i = 0; i < existing.length; i++) {
+                if (existing[i].textContent === email) {
+                    showToast('This organizer is already added.', 'error');
+                    return;
+                }
+            }
+            
+            // Check if valid organizer
+            const organizer = organizers.find(o => o.email === email);
+            if (!organizer) {
+                showToast('No organizer found with this email.', 'error');
+                return;
+            }
+            
+            const organizerTag = document.createElement('div');
+            organizerTag.className = 'organizer-tag';
+            organizerTag.innerHTML = `
+                ${email}
+                <button onclick="this.parentElement.remove()">×</button>
+            `;
+            document.getElementById('organizerList').appendChild(organizerTag);
+            emailInput.value = '';
+        }
+        
+        function createEvent() {
+            const name = document.getElementById('newEventName').value.trim();
+            const description = document.getElementById('newEventDescription').value.trim();
+            const venue = document.getElementById('newEventVenue').value;
+            const date = document.getElementById('newEventDate').value;
+            const time = document.getElementById('newEventTime').value;
+            const deadline = document.getElementById('newEventDeadline').value;
+            
+            if (!name || !venue || !date || !time || !deadline) {
+                showToast('Please fill in all required fields.', 'error');
+                return;
+            }
+            
+            // Get organizer emails
+            const organizerTags = document.querySelectorAll('.organizer-tag');
+            const organizerEmails = Array.from(organizerTags).map(tag => 
+                tag.textContent.replace('×', '').trim()
+            );
+            
+            // Find chief organizer
+            const chiefOrganizer = organizers.find(o => 
+                organizerEmails.includes(o.email)
+            );
+            
+            if (!chiefOrganizer) {
+                showToast('Could not determine chief organizer.', 'error');
+                return;
+            }
+            
+            // Create new event
+            const newEvent = {
+                id: events.length + 1,
+                name,
+                description,
+                venue,
+                date,
+                time: time.replace('-', ' - ').replace(/(\d{2}):(\d{2})/, (match, hh, mm) => {
+                    const hour = parseInt(hh);
+                    return `${hour > 12 ? hour - 12 : hour}:${mm} ${hour >= 12 ? 'PM' : 'AM'}`;
+                }),
+                deadline,
+                organizer: chiefOrganizer.name,
+                organizers: organizerEmails,
+                registrations: [],
+                reviews: [],
+                pastEvent: false
+            };
+            
+            events.push(newEvent);
+            showToast(`Event "${name}" created successfully!`, 'success');
+            cancelCreateEvent();
+            renderOrganizedEvents();
+        }
+        
+        // Utility Functions
+        function showTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => 
+                tab.classList.remove('active')
+            );
+            document.querySelectorAll('.tab-content').forEach(content => 
+                content.classList.remove('active')
+            );
+            
+            document.getElementById(tabName).classList.add('active');
+            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+        }
+        
+        function showToast(message, type = 'error') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `<span>${type === 'error' ? '❌' : '✓'}</span> ${message}`;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+        
+        function formatDate(dateString) {
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            return new Date(dateString).toLocaleDateString('en-US', options);
+        }
+        
+        function renderStars(rating) {
+            const fullStars = Math.floor(rating);
+            const halfStar = rating % 1 >= 0.5 ? 1 : 0;
+            const emptyStars = 5 - fullStars - halfStar;
+            
+            return '★'.repeat(fullStars) + '☆'.repeat(halfStar) + '☆'.repeat(emptyStars);
+        }
+        
+        // Initialize
+        showTab('studentTab');
+    </script>
+</body>
+</html>
